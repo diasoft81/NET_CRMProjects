@@ -1,0 +1,67 @@
+﻿@page "/"
+
+<PageTitle>Welcome & Technical Overview</PageTitle>
+
+<div class="container mt-4">
+    <div class="p-4 bg-light rounded shadow-sm">
+        <h2 class="text-primary">📦 How to Run This Project</h2>
+        <p>To run this solution locally:</p>
+        <ol>
+            <li>Install <strong>.NET 8 SDK</strong></li>
+            <li>Open terminal in solution root folder</li>
+            <li>Run <code>dotnet restore</code> and <code>dotnet build</code></li>
+            <li>Use <code>dotnet run --project CRM.API</code> to start the API</li>
+            <li>Use <code>dotnet run --project TestApp</code> to start Blazor UI</li>
+            <li>Access Swagger at <code>https://localhost:{port}/swagger</code></li>
+            <li>Access UI at <code>https://localhost:{port}/</code></li>
+        </ol>
+    </div>
+
+    <div class="p-4 mt-4 bg-white rounded shadow-sm">
+        <h2 class="text-success">🔧 Tools Used</h2>
+        <ul>
+            <li>Visual Studio 2022 / VS Code</li>
+            <li>.NET 8 SDK + ASP.NET Core Web API</li>
+            <li>Entity Framework Core 8 (SQLite & InMemory)</li>
+            <li>Swashbuckle (Swagger UI)</li>
+            <li>Blazor Server</li>
+            <li>NUnit for Unit Testing</li>
+            <li>RabbitMQ.Client</li>
+            <li>IMemoryCache, ILogger, Serilog</li>
+        </ul>
+    </div>
+
+    <div class="p-4 mt-4 bg-white rounded shadow-sm">
+        <h2 class="text-info">🧱 Architecture & Feature Overview</h2>
+        <ul>
+            <li><strong>Clean Separation</strong>: API layer, Repository layer, UI layer</li>
+            <li><strong>CRUD Implementation</strong>: Users, Roles, UserRoles</li>
+            <li><strong>Transactional Logic</strong>: <code>CreateUserWithRoleAsync</code> executes in DB transaction scope</li>
+            <li><strong>Input Validation</strong>: via Data Annotations in Entity</li>
+            <li><strong>Exception Handling</strong>: Global middleware captures and logs API errors</li>
+            <li><strong>Logging</strong>: Uses <code>ILogger</code> and <code>Serilog</code> to log to file and console</li>
+            <li><strong>Caching</strong>: GET endpoints cached using <code>IMemoryCache</code></li>
+            <li><strong>Message Broker</strong>: Publishes events to RabbitMQ on user creation</li>
+            <li><strong>Unit Tests</strong>: NUnit + EF Core InMemory + SQLite in-memory to test use case flow</li>
+        </ul>
+    </div>
+
+    <div class="p-4 mt-4 bg-white rounded shadow-sm">
+        <h2 class="text-dark">📂 Navigation</h2>
+        <p>Use these UI pages to interact with the API:</p>
+        <ul class="list-unstyled">
+            <li><a href="/user" class="btn btn-outline-primary btn-sm me-2">👤 Manage Users</a></li>
+            <li><a href="/role" class="btn btn-outline-secondary btn-sm me-2">🔐 Manage Roles</a></li>
+            <li><a href="/userrole" class="btn btn-outline-success btn-sm">🔗 Assign User Roles</a></li>
+        </ul>
+    </div>
+
+    <div class="p-4 mt-4 bg-light rounded shadow-sm">
+        <h2 class="text-muted">📝 Reviewer Notes</h2>
+        <p>
+            This project was designed to meet the .NET Developer technical assessment criteria with enhancements:
+            transactional service logic, logging, caching, and RabbitMQ integration. Unit testing is included
+            to verify business logic correctness. The design ensures extensibility and clean layering across components.
+        </p>
+    </div>
+</div>

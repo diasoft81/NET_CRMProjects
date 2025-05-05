@@ -1,0 +1,26 @@
+﻿@page "/transaction"
+<h3>🧾 Transaction History</h3>
+
+<p>This page will display records of customer transactions and payment status.</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Invoice</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Total</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Placeholder row -->
+        <tr>
+            <td>INV-2025001</td>
+            <td>@DateTime.Now.ToShortDateString()</td>
+            <td>Jane Smith</td>
+            <td>$250</td>
+            <td>Paid</td>
+        </tr>
+    </tbody>
+</table>

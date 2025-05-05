@@ -1,0 +1,108 @@
+﻿@page "/role"
+@using CRM.Models.General
+@inject HttpClient Http
+
+<h3>🔐 Manajemen Role</h3>
+
+@if (roles == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Role Name</th>
+                <th>Rights</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var role in roles)
+            {
+                <tr>
+                    <td>@role.RoleName</td>
+                    <td>@role.Rights</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" @onclick="() => EditRole(role)">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteRole(role.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+<h5>@(editingRole.Id == 0 ? "Tambah Role" : "Edit Role")</h5>
+
+<EditForm Model="@editingRole" OnValidSubmit="SaveRole">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-2">
+        <label>Role Name</label>
+        <InputText class="form-control" @bind-Value="editingRole.RoleName" />
+    </div>
+    <div class="mb-2">
+        <label>Rights (bitmask)</label>
+        <InputNumber class="form-control" @bind-Value="editingRole.Rights" />
+    </div>
+
+    <button type="submit" class="btn btn-primary me-2">Simpan</button>
+    <button type="button" class="btn btn-secondary" @onclick="ClearForm">Batal</button>
+</EditForm>
+
+@code {
+    private List<Role>? roles;
+    private Role editingRole = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRoles();
+    }
+
+    private async Task LoadRoles()
+    {
+        roles = await Http.GetFromJsonAsync<List<Role>>("api/role");
+    }
+
+    private async Task SaveRole()
+    {
+        if (editingRole.Id == 0)
+        {
+            await Http.PostAsJsonAsync("api/role", editingRole);
+        }
+        else
+        {
+            await Http.PutAsJsonAsync($"api/role/{editingRole.Id}", editingRole);
+        }
+
+        await LoadRoles();
+        ClearForm();
+    }
+
+    private void EditRole(Role role)
+    {
+        editingRole = new Role
+            {
+                Id = role.Id,
+                RoleName = role.RoleName,
+                Rights = role.Rights
+            };
+    }
+
+    private async Task DeleteRole(int id)
+    {
+        await Http.DeleteAsync($"api/role/{id}");
+        await LoadRoles();
+    }
+
+    private void ClearForm()
+    {
+        editingRole = new Role();
+    }
+
+   
+}

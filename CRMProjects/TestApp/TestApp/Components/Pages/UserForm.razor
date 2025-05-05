@@ -1,0 +1,126 @@
+﻿@page "/user"
+@using CRM.Models.General
+@inject HttpClient Http
+
+<h3>Manajemen Pengguna</h3>
+
+@if (users == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>@user.FullName</td>
+                    <td>@user.Email</td>
+                    <td>@user.Phone</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" @onclick="() => EditUser(user)">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+<h5>@(editingUser.Id == 0 ? "Tambah Pengguna" : "Edit Pengguna")</h5>
+
+<EditForm Model="@editingUser" OnValidSubmit="SaveUser">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-2">
+        <label>Username</label>
+        <InputText class="form-control" @bind-Value="editingUser.UserName" />
+    </div>
+    <div class="mb-2">
+        <label>Full Name</label>
+        <InputText class="form-control" @bind-Value="editingUser.FullName" />
+    </div>
+    <div class="mb-2">
+        <label>Email</label>
+        <InputText class="form-control" @bind-Value="editingUser.Email" />
+    </div>
+    <div class="mb-2">
+        <label>Phone</label>
+        <InputText class="form-control" @bind-Value="editingUser.Phone" />
+    </div>
+    <div class="mb-2">
+        <label>Password</label>
+        <InputText class="form-control" @bind-Value="editingUser.Password" type="password" />
+    </div>
+
+    <button type="submit" class="btn btn-primary me-2">Simpan</button>
+    <button type="button" class="btn btn-secondary" @onclick="ClearForm">Batal</button>
+</EditForm>
+
+@code {
+    private List<User>? users;
+    private User editingUser = new() { UserName = string.Empty };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        users = await Http.GetFromJsonAsync<List<User>>("api/User");
+    }
+
+    private async Task SaveUser()
+    {
+        if (editingUser.Id == 0)
+        {
+            var response = await Http.PostAsJsonAsync("api/User", editingUser);
+        }
+        else
+        {
+            var response = await Http.PutAsJsonAsync($"api/User/{editingUser.Id}", editingUser);
+        }
+
+        await LoadUsers();
+        ClearForm();
+    }
+
+    private void EditUser(User user)
+    {
+        editingUser = new User
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                FullName = user.FullName,
+                Email = user.Email,
+                Phone = user.Phone,
+                Password = user.Password
+            };
+    }
+
+    private async Task DeleteUser(int id)
+    {
+        await Http.DeleteAsync($"api/User/{id}");
+        await LoadUsers();
+    }
+
+    private void ClearForm()
+    {
+        editingUser = new User() { UserName = string.Empty };
+    }
+
+}

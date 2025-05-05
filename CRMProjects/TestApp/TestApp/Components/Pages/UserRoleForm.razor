@@ -1,0 +1,121 @@
+﻿@page "/userrole"
+@using CRM.Models.General
+@inject HttpClient Http
+
+<h3>🔗 Assign User Roles</h3>
+
+@if (userRoles == null || users == null || roles == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ur in userRoles)
+            {
+                <tr>
+                    <td>@ur.User?.FullName</td>
+                    <td>@ur.Role?.RoleName</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm me-1" @onclick="() => Edit(ur)">Edit</button>
+                        <button class="btn btn-danger btn-sm" @onclick="() => Delete(ur.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <hr />
+    <h5>@(editing.Id == 0 ? "Assign Role" : "Edit Assignment")</h5>
+
+    <EditForm Model="@editing" OnValidSubmit="Save">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-2">
+            <label>User</label>
+            <InputSelect class="form-control" @bind-Value="editing.UserId">
+                <option value="">-- Select User --</option>
+                @foreach (var u in users)
+                {
+                    <option value="@u.Id">@u.FullName</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-2">
+            <label>Role</label>
+            <InputSelect class="form-control" @bind-Value="editing.RoleId">
+                <option value="">-- Select Role --</option>
+                @foreach (var r in roles)
+                {
+                    <option value="@r.Id">@r.RoleName</option>
+                }
+            </InputSelect>
+        </div>
+
+        <button class="btn btn-primary me-2">Save</button>
+        <button type="button" class="btn btn-secondary" @onclick="Clear">Cancel</button>
+    </EditForm>
+}
+
+@code {
+    private List<UserRole>? userRoles;
+    private List<User>? users;
+    private List<Role>? roles;
+    private UserRole editing = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await Http.GetFromJsonAsync<List<User>>("api/user");
+        roles = await Http.GetFromJsonAsync<List<Role>>("api/role");
+        await LoadUserRoles();
+    }
+
+    private async Task LoadUserRoles()
+    {
+        userRoles = await Http.GetFromJsonAsync<List<UserRole>>("api/userrole");
+    }
+
+    private void Edit(UserRole ur)
+    {
+        editing = new UserRole
+            {
+                Id = ur.Id,
+                UserId = ur.UserId,
+                RoleId = ur.RoleId
+            };
+    }
+
+    private async Task Save()
+    {
+        if (editing.Id == 0)
+            await Http.PostAsJsonAsync("api/userrole", editing);
+        else
+            await Http.PutAsJsonAsync($"api/userrole/{editing.Id}", editing);
+
+        await LoadUserRoles();
+        Clear();
+    }
+
+    private async Task Delete(int id)
+    {
+        await Http.DeleteAsync($"api/userrole/{id}");
+        await LoadUserRoles();
+    }
+
+    private void Clear()
+    {
+        editing = new UserRole();
+    }
+
+    
+}
